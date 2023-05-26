@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "discord-bot"
+version = "0.1.0"
+description = "Bot to manage Discord's server - adds users role, maybe more in future"
+authors = ["Kacper Sieradziński <kacper@dokodu.it>", "Rafał Kowalski <rafkow91@yahoo.com>"]
+license = "MiT"
+readme = "README.md"
+packages = [{include = "discord_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^0.21.1"
+"discord.py" = "^2.1.1"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.16.2"
+pytest = "^7.2.1"
+autopep8 = "^2.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
