@@ -11,6 +11,7 @@ packages = [{include = "discord_bot"}]
 python = "^3.10"
 python-dotenv = "^0.21.1"
 "discord.py" = "^2.1.1"
+discord = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.2"
