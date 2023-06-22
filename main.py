@@ -1,49 +1,57 @@
-from os import environ
+from os import environ, path
+import logging
+import csv
 
 import discord
 from discord.ext import commands
+
 from dotenv import load_dotenv
 
+from utils import generate_token
+
+
+ROLES = {
+    'pystart': 'Test1',
+    'pyrest': 'Test2',
+}
+
+logging.basicConfig(level=logging.INFO, filename='DoKoduBot_test.log', encoding='utf8', format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
 load_dotenv()
 DISCORD_TOKEN = environ.get('DISCORD_TOKEN')
-SERVER_ID = environ.get('SERVER_ID')
 
-intents = discord.Intents.default()
-intents.message_content = True
+intents = discord.Intents.all()
 
-# client = discord.Client(intents=intents)
 client = commands.Bot(command_prefix='$', intents=intents)
+
 
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
 
-    if message.content.startswith('hello'):
-        await message.channel.send('Hello!')
+@client.command(name='kursant')
+async def add_trainee(message):
+    member = message.author
+    logging.info(f'Start adding new trainee - {member.name}')
+    role = discord.utils.get(member.guild.roles, name='Test1')
+    await member.add_roles(role)
+    await member.send(f'Teraz już masz nową rolę - {role.name}')
+    logging.info(f'Adding complete\nMember: {member}\nRole: {role.name}')
 
-    if message.content.startswith('$kursant'):
-        member = message.author
-        # server = client.get_guild(SERVER_ID)
-        # member = await server.fetch_member(message.author.id)
-        role = discord.utils.get(member.guild.roles, name='Test1')
-        # print(server)
-        # print(role.is_bot_managed())
-        # print(type(role))
-        await member.add_roles(role)
-        # print(role.members)
-        # role.members.append(member)
-        # print(role.members)
-        # await message.channel.send(f'{member.name}, {member.roles}, {role}')
 
-    if message.content.startswith('$bot'):
-        member = message.author
-        role = discord.utils.get(member.guild.roles, name='Administrator')
-        print(role.permissions, role.members)
-        print('-' * 10)
+@client.command(name='generate_codes')
+@commands.has_permissions(administrator=True)
+async def generate_codes(message, course, counter:int = 1):
+    logging.info(f'generate {counter} new codes by {message.author.name}')
+    for i in range(counter):
+        if not path.exists('codes.csv'):
+            with open('codes.csv', mode='w', encoding='utf8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['token', 'course', 'used', 'used_date', 'used_by',])
+        with open('codes.csv', mode='a', encoding='utf8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(
+                [generate_token(), course, False, None, None,]
+            )
 
 client.run(DISCORD_TOKEN)
