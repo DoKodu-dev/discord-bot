@@ -15,14 +15,26 @@ class Database:
         self.cursor = self.connection.cursor()
         self.sql_scripts = './database/sql'
 
-    def prepare_db(self):
-        list_of_files = list(os.walk(self.sql_scripts))[0]
-      
-        for i in sorted(list_of_files[2]):
-            with open(f'{list_of_files[0]}/{i}') as file:
-                scripts = ' '.join(file.readlines()).replace('\n', '').split(';')
-                for i, script in enumerate(scripts, start=1):
-                    try:
-                        self.cursor.execute(script)
-                    except sqlite3.OperationalError as err:
-                        logging.error(f'{err} -> script {i} in {list_of_files[0]}/{i}')
+    def prepare_db(self) -> None:
+        with open('./database/sql/01_initial.sql') as script_file:
+            script = script_file.read()
+        
+        try:
+            self.cursor.execute(script)
+            logging.info(f'Created table \'tokens\'')
+        except sqlite3.OperationalError as err:
+            logging.error(f'01_initial.sql: {err}')
+
+    def save_token(self, token: str, course: str) -> None:
+        with open('./database/sql/02_add_token.sql') as script_file:
+            script = script_file.read()
+        print(script)
+        try:
+           self.cursor.execute(script, (token, course))
+           self.connection.commit()
+        except sqlite3.OperationalError as err:
+            logging.error(f'02_add_token.sql: {err}')
+            return False
+        except sqlite3.IntegrityError as err:
+            logging.error(f'Token {token} already exist in DB')
+            return False
