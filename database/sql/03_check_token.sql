@@ -1,3 +1,3 @@
 select *
 from tokens
-where token ilike ?;
+where token like ?;
