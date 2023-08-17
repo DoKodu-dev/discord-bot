@@ -166,4 +166,7 @@ cython_debug/
 
 # My working files
 notes.py
-codes.csv
+roles.json
+
+# Database
+*.db
